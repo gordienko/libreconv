@@ -1,9 +1,7 @@
 # Libreconv
 
-Convert office documents to PDF using LibreOffice / OpenOffice.
-
-[![Code Climate](https://codeclimate.com/github/ricn/libreconv.png)](https://codeclimate.com/github/ricn/libreconv)
-[![Build Status](https://travis-ci.org/ricn/libreconv.png?branch=master)](https://travis-ci.org/ricn/libreconv)
+Convert office documents using LibreOffice / OpenOffice. This fork of [Richard Nyström's](https://github.com/ricn/libreconv) gem adds
+support for any output format (rather than only PDF).
 
 ## Installation
 
@@ -30,24 +28,24 @@ require 'libreconv'
 # This requires that the soffice binary is present in your PATH.
 Libreconv.convert('document.docx', '/Users/ricn/pdf_documents/my_document_as.pdf')
 
+# Converts document.docx to my_document_as.odt
+Libreconv.convert('document.docx', '/Users/ricn/pdf_documents/my_document_as.odt')
+
 # Converts document.docx to pdf and writes the output to the specified path
 # This requires that the soffice binary is present in your PATH.
-Libreconv.convert('document.docx', '/Users/ricn/pdf_documents')
+Libreconv.convert('document.docx', '/Users/ricn/pdf_documents', { convert_to: 'pdf' })
 
 # You can also convert a source file directly from an URL
 Libreconv.convert('http://myserver.com/123/document.docx', '/Users/ricn/pdf_documents/doc.pdf')
 
 # Converts document.docx to document.pdf
 # If you for some reason can't have soffice in your PATH you can specifiy the file path to the soffice binary
-Libreconv.convert('document.docx', '/Users/ricn/pdf_documents', '/Applications/LibreOffice.app/Contents/MacOS/soffice')
+Libreconv.convert('document.docx', '/Users/ricn/pdf_documents', { soffice_command: '/Applications/LibreOffice.app/Contents/MacOS/soffice', convert_to: 'pdf' })
 
 ```
-
 ## Credits
 
-The following people have contributed ideas, documentation, or code to Libreconv:
-
-* Richard Nyström
+Modified from [Richard Nyström's libreconv](https://github.com/ricn/libreconv).
 
 ## Contributing
 

@@ -6,22 +6,21 @@ require "spoon"
 
 module Libreconv
 
-  def self.convert(source, target, soffice_command = nil)
-    Converter.new(source, target, soffice_command).convert
+  def self.convert(source, target, options = {})
+    Converter.new(source, target, options).convert
   end
 
   class Converter
-    attr_accessor :soffice_command
-
-    def initialize(source, target, soffice_command = nil)
+    def initialize(source, target, options = {})
+      @options = default_options.merge(options)
       @source = source
       @target = target
       @target_path = Dir.tmpdir
-      @soffice_command = soffice_command 
       determine_soffice_command
       check_source_type
+      determine_output_format
       
-      unless @soffice_command && File.exists?(@soffice_command) 
+      unless @options[:soffice_command] && File.exists?(@options[:soffice_command])
         raise IOError, "Can't find Libreoffice or Openoffice executable."
       end
     end
@@ -29,19 +28,29 @@ module Libreconv
     def convert
       orig_stdout = $stdout.clone
       $stdout.reopen File.new('/dev/null', 'w')
-      pid = Spoon.spawnp(@soffice_command, "--headless", "--convert-to", "pdf", @source, "-outdir", @target_path)
+      pid = Spoon.spawnp(@options[:soffice_command], "--headless", "--convert-to",
+                         @options[:convert_to], @source, "-outdir", @target_path)
       Process.waitpid(pid)
       $stdout.reopen orig_stdout
-      target_tmp_file = "#{@target_path}/#{File.basename(@source, ".*")}.pdf"
+      target_tmp_file = "#{@target_path}/#{File.basename(@source, ".*")}.#{@options[:convert_to]}"
       FileUtils.cp target_tmp_file, @target
     end
 
     private
 
     def determine_soffice_command
-      unless @soffice_command
-        @soffice_command ||= which("soffice")
-        @soffice_command ||= which("soffice.bin")
+      unless @options[:soffice_command]
+        @options[:soffice_command] ||= which("soffice")
+        @options[:soffice_command] ||= which("soffice.bin")
+      end
+    end
+
+    def determine_output_format
+      unless @options[:convert_to]
+        @options[:convert_to] = File.extname(@target)[1..-1]
+        if @options[:convert_to].nil? || @options[:convert_to].empty?
+          @options[:convert_to] = 'pdf' #default to pdf if no file extension
+        end
       end
     end
 
@@ -62,6 +71,13 @@ module Libreconv
       is_http = URI(@source).scheme == "http" && Net::HTTP.get_response(URI(@source)).is_a?(Net::HTTPSuccess)
       is_https = URI(@source).scheme == "https" && Net::HTTP.get_response(URI(@source)).is_a?(Net::HTTPSuccess)  
       raise IOError, "Source (#{@source}) is neither a file nor an URL." unless is_file || is_http || is_https
+    end
+
+    def default_options
+      {
+          soffice_command: nil, # try to auto-determine,
+          convert_to: nil, # try to auto-determine from output filename
+      }
     end
   end
 end
