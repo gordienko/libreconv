@@ -23,7 +23,7 @@ describe Libreconv do
   describe Libreconv::Converter do
     describe "#new" do
       it "should raise error if soffice command does not exists" do
-        lambda { Libreconv::Converter.new(@doc_file, "/target", "/Whatever/soffice") }.should raise_error(IOError)
+        lambda { Libreconv::Converter.new(@doc_file, "/target", { soffice_command: "/Whatever/soffice" }) }.should raise_error(IOError)
       end
 
       it "should raise error if source does not exists" do
@@ -78,14 +78,14 @@ describe Libreconv do
     describe "#soffice_command" do
       it "should return the user specified command path" do
         cmd = file_path("soffice") # just faking that the command is present here
-        converter = Libreconv::Converter.new(@doc_file, "/target", cmd)
-        converter.soffice_command.should == cmd
+        converter = Libreconv::Converter.new(@doc_file, "/target", { soffice_command: cmd })
+        converter.options[:soffice_command].should == cmd
       end
 
       it "should return the command found in path" do
         cmd = `which soffice`.strip
         converter = Libreconv::Converter.new(@doc_file, "/target")
-        converter.soffice_command.should == cmd
+        converter.options[:soffice_command].should == cmd
       end
     end
 

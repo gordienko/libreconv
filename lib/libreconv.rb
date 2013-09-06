@@ -11,6 +11,8 @@ module Libreconv
   end
 
   class Converter
+    attr_accessor :options
+
     def initialize(source, target, options = {})
       @options = default_options.merge(options)
       @source = source
