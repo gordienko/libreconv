@@ -31,7 +31,7 @@ module Libreconv
       orig_stdout = $stdout.clone
       $stdout.reopen File.new('/dev/null', 'w')
       pid = Spoon.spawnp(@options[:soffice_command], "--headless", "--convert-to",
-                         @options[:convert_to], @source, "-outdir", @target_path)
+                         @options[:convert_to], @source, "--outdir", @target_path)
       Process.waitpid(pid)
       $stdout.reopen orig_stdout
       target_tmp_file = "#{@target_path}/#{File.basename(@source, ".*")}.#{@options[:convert_to]}"
